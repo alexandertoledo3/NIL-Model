@@ -357,7 +357,8 @@ const STATES = {
   KY:{n:'Kentucky',d:1,si:1,c:0,cr:1,m:0},
   NC:{n:'North Carolina',d:1,si:1,c:0,cr:1,m:0},
   VA:{n:'Virginia',d:1,si:1,c:0,cr:1,m:0},
-  MO:{n:'Missouri',d:1,si:1,c:0,cr:0,m:0}
+  MO:{n:'Missouri',d:1,si:1,c:0,cr:0,m:0},
+  NY:{n:'New York',d:1,si:1,c:0,cr:1,m:0}
 };
 Object.values(STATES).forEach(s => {
   s.s = s.d + s.si + s.c + s.cr + s.m;
@@ -475,9 +476,9 @@ const PLAYERS = [
   {name:'Tyler Shough',yr:2024,conf:'ACC',school:'Louisville',state:'KY',pos:'QB',passYds:3195,passTD:23,rushYds:136,rushTD:6,ints:6,stars:4,wins:9,starter:true,nilVal:540,nilSrc:'V',pullDate:'2024-08',allConf:0,highVis:0},
   {name:'Isaac Brown',yr:2024,conf:'ACC',school:'Louisville',state:'KY',pos:'RB',rushYds:1173,rushTD:11,recYds:210,recTD:1,rec:22,stars:3,wins:9,starter:true,nilVal:380,nilSrc:'E',pullDate:'2024-08',allConf:0,highVis:0},
   {name:'Ja\'Corey Brooks',yr:2024,conf:'ACC',school:'Louisville',state:'KY',pos:'WR',recYds:1013,recTD:9,rec:61,stars:4,wins:9,starter:true,nilVal:490,nilSrc:'E',pullDate:'2024-08',allConf:0,highVis:0},
-  {name:'Kyle McCord',yr:2024,conf:'ACC',school:'Syracuse',state:'NC',pos:'QB',passYds:4779,passTD:34,rushYds:-67,rushTD:3,ints:12,stars:4,wins:10,starter:true,nilVal:710,nilSrc:'V',pullDate:'2024-08',allConf:1,highVis:1},
-  {name:'LeQuint Allen',yr:2024,conf:'ACC',school:'Syracuse',state:'NC',pos:'RB',rushYds:1021,rushTD:16,recYds:521,recTD:7,rec:64,stars:3,wins:10,starter:true,nilVal:410,nilSrc:'E',pullDate:'2024-08',allConf:0,highVis:0},
-  {name:'Jackson Meeks',yr:2024,conf:'ACC',school:'Syracuse',state:'NC',pos:'WR',recYds:1021,recTD:9,rec:76,stars:3,wins:10,starter:true,nilVal:340,nilSrc:'E',pullDate:'2024-08',allConf:0,highVis:0},
+  {name:'Kyle McCord',yr:2024,conf:'ACC',school:'Syracuse',state:'NY',pos:'QB',passYds:4779,passTD:34,rushYds:-67,rushTD:3,ints:12,stars:4,wins:10,starter:true,nilVal:710,nilSrc:'V',pullDate:'2024-08',allConf:1,highVis:1},
+  {name:'LeQuint Allen',yr:2024,conf:'ACC',school:'Syracuse',state:'NY',pos:'RB',rushYds:1021,rushTD:16,recYds:521,recTD:7,rec:64,stars:3,wins:10,starter:true,nilVal:410,nilSrc:'E',pullDate:'2024-08',allConf:0,highVis:0},
+  {name:'Jackson Meeks',yr:2024,conf:'ACC',school:'Syracuse',state:'NY',pos:'WR',recYds:1021,recTD:9,rec:76,stars:3,wins:10,starter:true,nilVal:340,nilSrc:'E',pullDate:'2024-08',allConf:0,highVis:0},
   // 2025 (exploratory)
   {name:'Ty Simpson',yr:2025,conf:'SEC',school:'Alabama',state:'AL',pos:'QB',passYds:3340,passTD:28,rushYds:210,rushTD:4,ints:7,stars:5,wins:10,starter:true,nilVal:1500,nilSrc:'E',pullDate:'2025-09',allConf:0,highVis:1},
   {name:'Jam Miller',yr:2025,conf:'SEC',school:'Alabama',state:'AL',pos:'RB',rushYds:980,rushTD:10,recYds:180,recTD:1,rec:18,stars:3,wins:10,starter:true,nilVal:460,nilSrc:'E',pullDate:'2025-09',allConf:0,highVis:0},
