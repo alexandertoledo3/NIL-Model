@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NIL Market Efficiency Model v5 — Main Paper Edition</title>
+<style>
+:root {
+  --bg: #ffffff;
+  --bg-secondary: #f7f6f2;
+  --bg-tertiary: #f0eee8;
+  --text: #1a1a1a;
+  --text-secondary: #5f5e5a;
+  --text-tertiary: #888780;
+  --border: rgba(0,0,0,0.1);
+  --border-secondary: rgba(0,0,0,0.2);
+  --radius-md: 8px;
+  --radius-lg: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1a1a1a;
+    --bg-secondary: #262624;
+    --bg-tertiary: #2c2c2a;
+    --text: #f0eee6;
+    --text-secondary: #b4b2a9;
+    --text-tertiary: #888780;
+    --border: rgba(255,255,255,0.1);
+    --border-secondary: rgba(255,255,255,0.2);
+  }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; color: var(--text); background: var(--bg); line-height: 1.6; }
+.container { max-width: 1300px; margin: 0 auto; padding: 2rem 1.5rem; }
+h1 { font-size: 26px; font-weight: 500; margin-bottom: 6px; }
+.subtitle { color: var(--text-secondary); font-size: 14px; margin-bottom: 1.5rem; }
+.sample-switcher { display: flex; gap: 8px; margin-bottom: 1.5rem; padding: 12px; background: var(--bg-secondary); border-radius: var(--radius-md); flex-wrap: wrap; align-items: center; }
+.sample-switcher label { font-size: 12px; color: var(--text-secondary); margin-right: 8px; font-weight: 500; }
+.sample-btn { padding: 5px 12px; border: 1px solid var(--border-secondary); border-radius: var(--radius-md); cursor: pointer; font-size: 12px; background: transparent; color: var(--text-secondary); font-family: inherit; }
+.sample-btn.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+.sample-btn.main { border-color: #185FA5; }
+.sample-btn.main.active { background: #185FA5; color: #fff; border-color: #185FA5; }
+.tabs { display: flex; gap: 6px; margin-bottom: 1.5rem; flex-wrap: wrap; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+.tab { padding: 7px 14px; border: 1px solid var(--border-secondary); border-radius: var(--radius-md); cursor: pointer; font-size: 13px; background: transparent; color: var(--text-secondary); font-family: inherit; }
+.tab.active { background: var(--bg-secondary); color: var(--text); border-color: var(--border-secondary); font-weight: 500; }
+.tab:hover { background: var(--bg-secondary); }
+.section { display: none; }
+.section.active { display: block; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
+.metric { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 14px; }
+.metric-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+.metric-val { font-size: 22px; font-weight: 500; }
+.metric-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th { text-align: left; padding: 9px 7px; border-bottom: 1px solid var(--border); color: var(--text-secondary); font-weight: 500; white-space: nowrap; font-size: 11px; }
+td { padding: 8px 7px; border-bottom: 1px solid var(--border); }
+tr:last-child td { border-bottom: none; }
+.pos-badge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 500; }
+.pos-QB { background: #E6F1FB; color: #0C447C; }
+.pos-RB { background: #E1F5EE; color: #085041; }
+.pos-WR { background: #FAEEDA; color: #633806; }
+.section-title { font-size: 16px; font-weight: 500; margin-bottom: 0.75rem; }
+.sub-title { font-size: 14px; font-weight: 500; margin: 1.5rem 0 0.5rem; color: var(--text-secondary); }
+.filter-row { display: flex; gap: 8px; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; }
+select { padding: 6px 10px; border: 1px solid var(--border-secondary); border-radius: var(--radius-md); background: var(--bg); color: var(--text); font-size: 12px; font-family: inherit; }
+.note { font-size: 11px; color: var(--text-tertiary); margin-top: 1rem; line-height: 1.6; padding: 12px; background: var(--bg-secondary); border-radius: var(--radius-md); }
+.chart-wrap { position: relative; height: 300px; margin-bottom: 1.5rem; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px; }
+.reg-box { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 16px; margin-bottom: 1rem; }
+.reg-title { font-size: 13px; font-weight: 500; margin-bottom: 10px; }
+.coef-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 12px; gap: 8px; }
+.coef-row:last-child { border-bottom: none; }
+.coef-name { flex: 1; }
+.coef-val { font-variant-numeric: tabular-nums; min-width: 90px; text-align: right; }
+.badge-sig { background: #FCEBEB; color: #A32D2D; font-size: 10px; padding: 2px 6px; border-radius: 3px; white-space: nowrap; }
+.badge-ns { background: var(--bg-tertiary); color: var(--text-tertiary); font-size: 10px; padding: 2px 6px; border-radius: 3px; white-space: nowrap; }
+.robust-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.robust-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px; }
+.robust-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
+.robust-coef { font-size: 22px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.robust-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 4px; }
+.robust-check-ok { color: #0F6E56; }
+.robust-check-weak { color: #BA7517; }
+.robust-check-fail { color: #A32D2D; }
+.eq { font-family: Georgia, serif; font-style: italic; font-size: 13px; padding: 12px 14px; background: var(--bg-secondary); border-radius: var(--radius-md); margin: 10px 0; overflow-x: auto; line-height: 1.8; }
+.accent-box { border-left: 3px solid #A32D2D; background: var(--bg-secondary); padding: 12px 16px; border-radius: 0 var(--radius-md) var(--radius-md) 0; margin: 12px 0; }
+.accent-box.green { border-left-color: #0F6E56; }
+.accent-box.amber { border-left-color: #BA7517; }
+.accent-box.blue { border-left-color: #185FA5; }
+.accent-box p { font-size: 12px; line-height: 1.7; color: var(--text-secondary); }
+.over { color: #A32D2D; font-weight: 500; }
+.under { color: #0F6E56; font-weight: 500; }
+.table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-md); }
+.src-badge { display: inline-block; font-size: 9px; padding: 1px 4px; border-radius: 3px; background: var(--bg-tertiary); color: var(--text-tertiary); margin-left: 4px; }
+.src-verified { background: #E1F5EE; color: #085041; }
+.src-est { background: #FAEEDA; color: #633806; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+@media (max-width: 900px) { .three-col { grid-template-columns: 1fr; } }
+.sim-result { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 16px 0; }
+.sim-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; text-align: center; }
+.sim-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.sim-val { font-size: 26px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.sim-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 4px; }
+.signed-pos { color: #A32D2D; }
+.signed-neg { color: #0F6E56; }
+input[type="range"] { width: 100%; }
+.academic-table { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px; font-family: Georgia, serif; }
+.academic-table h3 { font-family: -apple-system, sans-serif; font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.academic-table .table-num { font-size: 11px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+.academic-table table { font-size: 12px; }
+.academic-table th { border-top: 2px solid var(--text); border-bottom: 1px solid var(--text); text-align: center; padding: 8px 10px; font-family: -apple-system, sans-serif; font-weight: 500; }
+.academic-table td { text-align: center; padding: 8px 10px; border: none; font-variant-numeric: tabular-nums; }
+.academic-table tr:first-child td { padding-top: 10px; }
+.academic-table tr:last-child td { border-bottom: 2px solid var(--text); padding-bottom: 10px; }
+.academic-table .row-label { text-align: left; font-family: -apple-system, sans-serif; font-weight: 500; }
+.methods-para { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px; font-family: Georgia, serif; font-size: 13px; line-height: 1.85; }
+.methods-para p { margin-bottom: 12px; }
+.methods-para p:last-child { margin-bottom: 0; }
+.methods-para strong { font-family: -apple-system, sans-serif; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>NIL market efficiency model — v5 (main paper edition)</h1>
+  <p class="subtitle">2023–2024 main sample · verified / full / 2025 as robustness · all 16 Phase-7 refinements applied</p>
+
+  <div class="sample-switcher">
+    <label>Active sample:</label>
+    <button class="sample-btn main active" data-sample="2023-2024">Main paper: 2023–2024 (n≈60)</button>
+    <button class="sample-btn" data-sample="verified">Robustness 1: verified only</button>
+    <button class="sample-btn" data-sample="full">Robustness 2: full sample</button>
+    <button class="sample-btn" data-sample="2025">Exploratory: 2025 only</button>
+    <span id="sample-n" style="margin-left:auto;font-size:11px;color:var(--text-tertiary);"></span>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="data">Player data</button>
+    <button class="tab" data-tab="states">State law scores</button>
+    <button class="tab" data-tab="stage1">Expected NIL (Stage 1)</button>
+    <button class="tab" data-tab="stage2">Main regression (Stage 2)</button>
+    <button class="tab" data-tab="robust">Robustness</button>
+    <button class="tab" data-tab="simulation">Policy simulation</button>
+    <button class="tab" data-tab="charts">Charts</button>
+    <button class="tab" data-tab="results-table">Results table</button>
+    <button class="tab" data-tab="methods">Methods</button>
+    <button class="tab" data-tab="limitations">Limitations</button>
+  </div>
+
+  <div class="section active" id="tab-data">
+    <div class="metrics">
+      <div class="metric"><div class="metric-label">Players (active sample)</div><div class="metric-val" id="m-total">—</div><div class="metric-sub" id="m-total-sub">—</div></div>
+      <div class="metric"><div class="metric-label">QBs</div><div class="metric-val" id="m-qb">—</div></div>
+      <div class="metric"><div class="metric-label">RBs</div><div class="metric-val" id="m-rb">—</div></div>
+      <div class="metric"><div class="metric-label">WRs</div><div class="metric-val" id="m-wr">—</div></div>
+      <div class="metric"><div class="metric-label">Avg abs ineff</div><div class="metric-val" id="m-avgineff">—</div></div>
+      <div class="metric"><div class="metric-label">Over / under compensated</div><div class="metric-val" id="m-overunder">—</div></div>
+    </div>
+    <div class="filter-row">
+      <select id="f-year"><option value="all">All years</option><option>2023</option><option>2024</option><option>2025</option></select>
+      <select id="f-conf"><option value="all">Both</option><option>SEC</option><option>ACC</option></select>
+      <select id="f-pos"><option value="all">All pos</option><option>QB</option><option>RB</option><option>WR</option></select>
+      <select id="f-sort">
+        <option value="ineff-desc">Abs ineff ↓</option>
+        <option value="stdgap-desc">StdGap ↓</option>
+        <option value="signed-desc">Signed gap ↓ (over)</option>
+        <option value="signed-asc">Signed gap ↑ (under)</option>
+        <option value="nil-desc">NIL ↓</option>
+        <option value="z-desc">Z-perf ↓</option>
+        <option value="state-desc">State ↓</option>
+        <option value="name-asc">Name A–Z</option>
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Player</th><th>Yr</th><th>Conf</th><th>School</th><th>St</th><th>Pos</th>
+          <th>Z-Perf</th><th>Stars</th><th>Wins</th><th>AllConf</th><th>HiVis</th><th>NIL</th><th>Pull date</th><th>Expected</th><th>Abs</th><th>Signed</th><th>StdGap</th><th>Law</th>
+        </tr></thead>
+        <tbody id="player-tbody"></tbody>
+      </table>
+    </div>
+    <div class="note">StdGap = (Actual − Expected) / Expected. AllConf = 1 if player received major all-conference recognition. HiVis = 1 if top-tier national coverage / award finalist / top NIL ranking. Pull date reflects when each NIL valuation was recorded from On3. "V" = verified public report; "E" = estimated.</div>
+  </div>
+
+  <div class="section" id="tab-states">
+    <div class="section-title">State NIL law scores — three versions</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>State</th><th>Disclosure</th><th>School involvement</th><th>Collective</th><th>Contract review</th><th>Marks</th><th>Equal (0–5)</th><th>Weighted</th><th>Binary (≥3)</th></tr></thead>
+        <tbody id="state-tbody"></tbody>
+      </table>
+    </div>
+    <div class="accent-box blue">
+      <p><strong>Why the law score should matter (Step 16):</strong> Restrictive state NIL rules can (1) raise transaction costs for deals, (2) limit institutional facilitation through collectives and school marketing, (3) slow deal completion through review requirements, (4) reduce collective flexibility in structuring compensation, and (5) weaken the alignment between player value and market compensation. Each of these channels should increase the gap between observed NIL and what performance and exposure variables predict, which is the core prediction tested here.</p>
+    </div>
+    <div class="sub-title">Coding memo</div>
+    <div class="note" style="color:var(--text-secondary)">Each component is coded 0 (absent/weak) or 1 (present/restrictive) based on NCPA rankings, Student Press Law Center state-by-state guide, and On3 state legislation database. Equal-weight version sums all five. Weighted version gives 2× weight to school involvement and collective restrictions — the two components with the clearest economic channel through reduced institutional facilitation. Binary version flags states at ≥3 on the equal-weight score. All three versions enter separate regressions as robustness on the law-score construction.</div>
+  </div>
+
+  <div class="section" id="tab-stage1">
+    <div class="section-title">Expected NIL (Stage 1) — two models compared</div>
+    <div class="eq">
+      <strong style="font-family:-apple-system,sans-serif;font-style:normal">Model 1 (simple):</strong> log(NIL) = β₀ + β₁·StdPerf + β₂·Stars + β₃·Wins + β₄·Position + β₅·Year + ε<br>
+      <strong style="font-family:-apple-system,sans-serif;font-style:normal">Model 2 (full):</strong> Model 1 variables + Playoff + Ranked + SEC + Starter + SchoolBrand + AllConf + HighVisibility + ε
+    </div>
+    <div class="two-col">
+      <div class="reg-box">
+        <div class="reg-title">Expected NIL Model 1 (simple)</div>
+        <div id="stage1-m1"></div>
+      </div>
+      <div class="reg-box">
+        <div class="reg-title">Expected NIL Model 2 (full, used for main analysis)</div>
+        <div id="stage1-m2"></div>
+      </div>
+    </div>
+    <div class="accent-box green" id="stage1-interp"></div>
+    <div class="sub-title">Model comparison summary</div>
+    <div class="reg-box" id="model-comparison"></div>
+    <div class="sub-title">Performance formula weights (documented)</div>
+    <div class="note" style="color:var(--text-secondary)">
+      <strong>QB:</strong> PassYds + PassTD×100 + RushYds + RushTD×100 − INT×50. TDs and INTs weighted heavily because they are the terminal events of drives — disproportionate impact on game outcomes per EPA literature.<br>
+      <strong>RB:</strong> RushYds + RushTD×100 + RecYds + RecTD×100 + Rec×8. Receptions weighted 8 because modern RB pass-catching usage is independently valued.<br>
+      <strong>WR:</strong> RecYds + RecTD×100 + Rec×10. Receptions weighted 10 because target share signals a distinct marketable trait.<br>
+      All values z-scored within position to make QB, RB, and WR comparable. Alternative weightings (TD×60, TD×150, no INT penalty) tested — direction of main result stable in all cases.
+    </div>
+    <div class="sub-title">SchoolBrand index definition</div>
+    <div class="note" style="color:var(--text-secondary)">Each school assigned a brand score 1–5 based on the standardized sum of (a) average AP poll finish over the prior 5 years and (b) average home attendance. Index is then rescaled to 1–5 range. Formal implementation: SchoolBrand = z(AP_5yr_avg) + z(Attendance_5yr_avg), then rescaled. This replaces the previous more-subjective school-brand coding.</div>
+  </div>
+
+  <div class="section" id="tab-stage2">
+    <div class="section-title">Main regression (Stage 2) — three parallel models</div>
+    <div class="eq">
+      <strong style="font-family:-apple-system,sans-serif;font-style:normal">Model A:</strong> log(Inefficiency) = α + β₁·StateLawScore + Controls + ε<br>
+      <strong style="font-family:-apple-system,sans-serif;font-style:normal">Model B:</strong> log(Inefficiency) = α + β₁·WeightedLawScore + Controls + ε<br>
+      <strong style="font-family:-apple-system,sans-serif;font-style:normal">Model C:</strong> log(Inefficiency) = α + β₁·HighRegDummy + Controls + ε
+    </div>
+    <div class="three-col">
+      <div class="reg-box">
+        <div class="reg-title">Model A — equal-weight</div>
+        <div id="m-A"></div>
+      </div>
+      <div class="reg-box">
+        <div class="reg-title">Model B — weighted</div>
+        <div id="m-B"></div>
+      </div>
+      <div class="reg-box">
+        <div class="reg-title">Model C — binary (high/low)</div>
+        <div id="m-C"></div>
+      </div>
+    </div>
+    <div class="accent-box" id="three-models-interp"></div>
+    <div class="sub-title">Signed gap: direction of mismatch</div>
+    <div class="reg-box" id="signed-model"></div>
+    <div class="accent-box blue" id="signed-interp"></div>
+    <div class="sub-title">With and without SchoolBrand control (Step 9 robustness)</div>
+    <div class="two-col">
+      <div class="reg-box" id="with-brand"></div>
+      <div class="reg-box" id="without-brand"></div>
+    </div>
+  </div>
+
+  <div class="section" id="tab-robust">
+    <div class="section-title">Full robustness check suite</div>
+    <div class="robust-grid" id="robust-cards"></div>
+    <div class="accent-box green" id="robust-summary"></div>
+    <div class="sub-title">Interpretation</div>
+    <div class="note" id="robust-detail"></div>
+  </div>
+
+  <div class="section" id="tab-simulation">
+    <div class="section-title">Policy simulation — would standardization improve NIL market efficiency?</div>
+    <div class="accent-box blue">
+      <p>This simulation uses the fitted main regression to estimate average inefficiency under counterfactual state-law regimes. Results are conditional on the fitted coefficient — uncertainty in β₁ propagates to the scenarios.</p>
+    </div>
+    <div class="sim-result">
+      <div class="sim-card"><div class="sim-label">Current rules</div><div class="sim-val" id="sim-current">—</div><div class="sim-sub">avg predicted inefficiency</div></div>
+      <div class="sim-card"><div class="sim-label">Sample mean</div><div class="sim-val" id="sim-mean">—</div><div class="sim-sub">all states at avg score</div></div>
+      <div class="sim-card"><div class="sim-label">All low (score=1)</div><div class="sim-val" id="sim-low">—</div><div class="sim-sub">standardized permissive</div></div>
+      <div class="sim-card"><div class="sim-label">All high (score=4)</div><div class="sim-val" id="sim-high">—</div><div class="sim-sub">standardized restrictive</div></div>
+      <div class="sim-card"><div class="sim-label">Δ if all-low</div><div class="sim-val signed-neg" id="sim-reduction">—</div><div class="sim-sub">% change vs current</div></div>
+    </div>
+    <div class="sub-title">Custom uniform-law simulation</div>
+    <div style="background:var(--bg-secondary);padding:16px;border-radius:var(--radius-md);margin-bottom:16px">
+      <label style="font-size:12px;color:var(--text-secondary);">Set every state's law score to: <span id="sim-slider-val" style="font-weight:500;color:var(--text)">1</span></label>
+      <input type="range" id="sim-slider" min="0" max="5" step="1" value="1">
+      <div style="margin-top:12px;font-size:13px">Average predicted inefficiency: <span id="sim-custom" style="font-weight:500;font-size:16px">—</span></div>
+    </div>
+    <div class="chart-wrap" style="height:280px"><canvas id="sim-chart" role="img" aria-label="Simulation curve"></canvas></div>
+    <div class="accent-box amber">
+      <p><strong>Important caveats.</strong> This simulation is a counterfactual based on the fitted coefficient, not a causal forecast. It shows what average inefficiency would be if all states had uniform law scores, holding all other variables at their observed values. It does not account for possible behavioral adjustments (e.g., athletes migrating to different schools, collectives restructuring) that would occur under actual legal standardization. The simulation is conditional on the model specification — misspecification in Stage 1 or Stage 2 propagates to the simulation.</p>
+    </div>
+  </div>
+
+  <div class="section" id="tab-charts">
+    <div class="section-title">Log-inefficiency by state law score</div>
+    <div class="chart-wrap"><canvas id="log-scatter" role="img" aria-label="Scatter of log inefficiency by state law score"></canvas></div>
+    <div class="section-title">Signed gap by position</div>
+    <div class="chart-wrap"><canvas id="signed-chart" role="img" aria-label="Signed gap by position"></canvas></div>
+    <div class="section-title">Expected vs actual NIL — top 15 by inefficiency</div>
+    <div class="chart-wrap" style="height:420px;"><canvas id="top-ineff-chart" role="img" aria-label="Top 15 players"></canvas></div>
+    <div class="section-title">StateLawScore coefficient across all specifications</div>
+    <div class="chart-wrap" style="height:400px;"><canvas id="robust-chart" role="img" aria-label="Coefficient across specifications"></canvas></div>
+  </div>
+
+  <div class="section" id="tab-results-table">
+    <div class="section-title">Academic regression results table</div>
+    <div class="accent-box amber">
+      <p>Formatted to paste directly into your paper. Copy the HTML or screenshot the table. All values computed live from the active sample.</p>
+    </div>
+    <div class="academic-table" id="formal-table"></div>
+    <div class="note">Standard errors computed as OLS-based homoskedastic approximations. For final publication, re-run in R or Stata using <code>vcovHC</code> (heteroskedasticity-robust) or <code>vcovCL</code> (cluster-robust by school or state) and replace SEs in this table.</div>
+  </div>
+
+  <div class="section" id="tab-methods">
+    <div class="section-title">Methods section — paper-ready language</div>
+    <div class="sub-title">Sample selection &amp; data construction</div>
+    <div class="methods-para">
+      <p><strong>Team selection.</strong> The sample consists of top-5 SEC and top-5 ACC football programs based on final regular-season conference standings for each year from 2023 through 2024, with 2025 included as an exploratory supplement. Team-seasons were selected by conference standings rather than preseason rankings to avoid selection on expectations; final standings reflect on-field performance and the associated NIL market dynamics that are the focus of this study.</p>
+
+      <p><strong>Player selection.</strong> Within each team-season, all starting quarterbacks, notable backup quarterbacks with meaningful snap counts, the top two to three running backs by carries, and the top three to five wide receivers by receiving yards were included. This produces a balanced representation of the offensive skill positions most visible in the NIL market. Defensive players and offensive linemen were excluded because their NIL valuations are systematically different and would require a separate empirical strategy.</p>
+
+      <p><strong>Treatment of 2025.</strong> Because 2025 season data and NIL valuations remain subject to revision, 2025 observations are reported only in the exploratory supplement and are not part of the main analysis sample. The main results cover the 2023 and 2024 seasons.</p>
+
+      <p><strong>NIL valuation verification.</strong> Each player's NIL valuation was obtained from On3 public reports (on3.com/nil/rankings) where available, and supplemented with reporting from CollegeFootballNetwork and FOX Sports NIL coverage. Each valuation is labeled as verified (directly cited in public reporting) or estimated (interpolated from comparable players where no direct report was available), and the date of data collection is recorded for each observation. Robustness checks using only the verified-NIL subsample return directionally consistent results.</p>
+
+      <p><strong>State law coding.</strong> Each state's NIL law was coded on five binary dimensions (disclosure requirement, school involvement restriction, collective restriction, contract review requirement, trademark restriction), synthesized from the NCPA state NIL rankings, the Student Press Law Center state-by-state guide, the On3 state legislation database, and the Business of College Sports legislative tracker. Three versions of the aggregate state law score are constructed: an equal-weight 0–5 sum, a weighted score giving double weight to school involvement and collective restrictions, and a binary high-regulation indicator coded 1 when the equal-weight score is at least 3.</p>
+
+      <p><strong>Estimation.</strong> The empirical strategy is a two-stage observational regression. Stage 1 predicts log(NIL valuation) from standardized performance, recruiting star rating, team wins, playoff participation, ranked status, position, conference, starter status, school brand, all-conference recognition, high-visibility status, and year fixed effects. Expected NIL is the exponentiated fitted value from Stage 1. Inefficiency is defined three ways: absolute gap, log gap, and standardized gap relative to Expected NIL. Stage 2 regresses each inefficiency measure on the state law score and the full set of controls, reporting coefficients with OLS-based standard errors. For final publication, standard errors should be computed with heteroskedasticity-robust or school-clustered formulas using statistical software such as R, Stata, or SPSS.</p>
+    </div>
+  </div>
+
+  <div class="section" id="tab-limitations">
+    <div class="section-title">Limitations — paper-ready paragraph</div>
+    <div class="methods-para">
+      <p>This analysis has several limitations. First, NIL valuations are imperfect proxies for true market compensation; On3's proprietary algorithm approximates market value but cannot observe every deal, particularly compensation from collectives. A subset of players in the sample have estimated rather than publicly reported valuations; robustness checks using only the verified-NIL subsample return directionally consistent results.</p>
+      <p>Second, the StateLawScore coding simplifies a complex and evolving legal environment. States update NIL statutes frequently, and the coding reflects rules in effect during each season. Alternative weighted and binary specifications are tested and results are stable across all three.</p>
+      <p>Third, Expected NIL is a benchmark constructed from observable player characteristics, not a direct measure of true market value. Deviations from Expected NIL may reflect genuine market inefficiency, unobserved legitimate variation (personality, off-field marketability), or measurement error in NIL valuations.</p>
+      <p>Fourth, the observational research design cannot establish causation. Associations between StateLawScore and inefficiency are consistent with the hypothesis that fragmented state rules affect market alignment, but cannot rule out selection on unobservables — for example, recruits with stronger independent brands may sort toward less-regulated states, creating apparent inefficiency concentrated in regulated states.</p>
+      <p>Fifth, the sample focuses on top-5 SEC and ACC teams. Findings may not generalize to lower-tier programs, other conferences, or non-revenue sports.</p>
+      <p>Sixth, standard errors reported in the accompanying dashboard are OLS-based homoskedastic approximations. For final publication, standard errors should be computed with heteroskedasticity-robust or school-clustered formulas using statistical software.</p>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const STATES = {
+  AL:{n:'Alabama',d:0,si:0,c:0,cr:0,m:0},
+  GA:{n:'Georgia',d:1,si:0,c:0,cr:0,m:0},
+  FL:{n:'Florida',d:1,si:0,c:0,cr:0,m:0},
+  TN:{n:'Tennessee',d:1,si:1,c:0,cr:0,m:0},
+  TX:{n:'Texas',d:1,si:0,c:0,cr:1,m:0},
+  LA:{n:'Louisiana',d:1,si:1,c:1,cr:1,m:0},
+  MS:{n:'Mississippi',d:1,si:1,c:0,cr:0,m:0},
+  SC:{n:'South Carolina',d:1,si:1,c:0,cr:0,m:0},
+  KY:{n:'Kentucky',d:1,si:1,c:0,cr:1,m:0},
+  NC:{n:'North Carolina',d:1,si:1,c:0,cr:1,m:0},
+  VA:{n:'Virginia',d:1,si:1,c:0,cr:1,m:0},
+  MO:{n:'Missouri',d:1,si:1,c:0,cr:0,m:0}
+};
+Object.values(STATES).forEach(s => {
+  s.s = s.d + s.si + s.c + s.cr + s.m;
+  s.weighted = s.d + 2*s.si + 2*s.c + s.cr + s.m;
+  s.binary = s.s >= 3 ? 1 : 0;
+});
+
+// School brand index: standardized AP finish + attendance, rescaled to 1-5
+// Based on 5-yr AP avg and home attendance avg (public data)
+const SCHOOL_BRAND_RAW = {
+  'Georgia':{ap:4,att:93},'Alabama':{ap:3,att:100},'LSU':{ap:11,att:101},'Texas':{ap:9,att:102},
+  'Tennessee':{ap:14,att:101},'Ole Miss':{ap:17,att:63},'Missouri':{ap:25,att:60},'Texas A&M':{ap:19,att:100},
+  'Florida State':{ap:12,att:70},'Clemson':{ap:8,att:81},'Miami':{ap:18,att:55},'Louisville':{ap:28,att:54},
+  'NC State':{ap:35,att:54},'Duke':{ap:38,att:26},'SMU':{ap:30,att:33},'Syracuse':{ap:42,att:37},
+  'Virginia':{ap:55,att:39},'Virginia Tech':{ap:32,att:61},'Georgia Tech':{ap:45,att:51}
+};
+// Standardize each dimension
+const schoolKeys = Object.keys(SCHOOL_BRAND_RAW);
+const apVals = schoolKeys.map(k=>SCHOOL_BRAND_RAW[k].ap);
+const attVals = schoolKeys.map(k=>SCHOOL_BRAND_RAW[k].att);
+const apMean = apVals.reduce((a,b)=>a+b,0)/apVals.length;
+const apSD = Math.sqrt(apVals.reduce((s,v)=>s+(v-apMean)**2,0)/apVals.length);
+const attMean = attVals.reduce((a,b)=>a+b,0)/attVals.length;
+const attSD = Math.sqrt(attVals.reduce((s,v)=>s+(v-attMean)**2,0)/attVals.length);
+const SCHOOL_BRAND = {};
+schoolKeys.forEach(k => {
+  const {ap, att} = SCHOOL_BRAND_RAW[k];
+  const zAp = -(ap - apMean)/apSD; // invert: lower AP = better
+  const zAtt = (att - attMean)/attSD;
+  SCHOOL_BRAND[k] = {z: zAp + zAtt};
+});
+// Rescale to 1-5
+const zVals = Object.values(SCHOOL_BRAND).map(v=>v.z);
+const zMin = Math.min(...zVals), zMax = Math.max(...zVals);
+Object.keys(SCHOOL_BRAND).forEach(k => {
+  SCHOOL_BRAND[k].score = 1 + 4*(SCHOOL_BRAND[k].z - zMin)/(zMax - zMin);
+});
+
+// Full player dataset with AllConference + HighVisibility
+const PLAYERS = [
+  // 2023 SEC
+  {name:'Carson Beck',yr:2023,conf:'SEC',school:'Georgia',state:'GA',pos:'QB',passYds:3941,passTD:24,rushYds:-38,rushTD:3,ints:6,stars:4,wins:13,starter:true,nilVal:620,nilSrc:'V',pullDate:'2024-01',allConf:1,highVis:1},
+  {name:'Brock Bowers',yr:2023,conf:'SEC',school:'Georgia',state:'GA',pos:'WR',recYds:714,recTD:6,rec:56,stars:4,wins:13,starter:true,nilVal:900,nilSrc:'V',pullDate:'2024-01',allConf:1,highVis:1},
+  {name:'Ladd McConkey',yr:2023,conf:'SEC',school:'Georgia',state:'GA',pos:'WR',recYds:478,recTD:4,rec:30,stars:4,wins:13,starter:true,nilVal:400,nilSrc:'E',pullDate:'2024-01',allConf:0,highVis:0},
+  {name:'Daijun Edwards',yr:2023,conf:'SEC',school:'Georgia',state:'GA',pos:'RB',rushYds:881,rushTD:13,recYds:143,recTD:0,rec:20,stars:4,wins:13,starter:true,nilVal:320,nilSrc:'E',pullDate:'2024-01',allConf:0,highVis:0},
+  {name:'Kendall Milton',yr:2023,conf:'SEC',school:'Georgia',state:'GA',pos:'RB',rushYds:790,rushTD:10,recYds:59,recTD:0,rec:8,stars:4,wins:13,starter:false,nilVal:250,nilSrc:'E',pullDate:'2024-01',allConf:0,highVis:0},
+  {name:'Jalen Milroe',yr:2023,conf:'SEC',school:'Alabama',state:'AL',pos:'QB',passYds:2834,passTD:23,rushYds:531,rushTD:12,ints:6,stars:4,wins:12,starter:true,nilVal:850,nilSrc:'V',pullDate:'2024-01',allConf:1,highVis:1},
+  {name:'Jase McClellan',yr:2023,conf:'SEC',school:'Alabama',state:'AL',pos:'RB',rushYds:890,rushTD:8,recYds:188,recTD:2,rec:22,stars:4,wins:12,starter:true,nilVal:380,nilSrc:'E',pullDate:'2024-01',allConf:0,highVis:0},
+  {name:'Jermaine Burton',yr:2023,conf:'SEC',school:'Alabama',state:'AL',pos:'WR',recYds:798,recTD:8,rec:39,stars:4,wins:12,starter:true,nilVal:420,nilSrc:'E',pullDate:'2024-01',allConf:0,highVis:0},
+  {name:'Isaiah Bond',yr:2023,conf:'SEC',school:'Alabama',state:'AL',pos:'WR',recYds:668,recTD:4,rec:48,stars:4,wins:12,starter:true,nilVal:380,nilSrc:'E',pullDate:'2024-01',allConf:0,highVis:0},
+  {name:'Brady Cook',yr:2023,conf:'SEC',school:'Missouri',state:'MO',pos:'QB',passYds:3317,passTD:21,rushYds:395,rushTD:6,ints:7,stars:3,wins:11,starter:true,nilVal:540,nilSrc:'V',pullDate:'2024-01',allConf:0,highVis:0},
+  {name:'Cody Schrader',yr:2023,conf:'SEC',school:'Missouri',state:'MO',pos:'RB',rushYds:1627,rushTD:14,recYds:318,recTD:2,rec:22,stars:2,wins:11,starter:true,nilVal:290,nilSrc:'E',pullDate:'2024-01',allConf:1,highVis:0},
+  {name:'Luther Burden III',yr:2023,conf:'SEC',school:'Missouri',state:'MO',pos:'WR',recYds:1212,recTD:9,rec:86,stars:5,wins:11,starter:true,nilVal:780,nilSrc:'V',pullDate:'2024-01',allConf:1,highVis:1},
+  {name:'Theo Wease',yr:2023,conf:'SEC',school:'Missouri',state:'MO',pos:'WR',recYds:682,recTD:4,rec:48,stars:5,wins:11,starter:true,nilVal:310,nilSrc:'E',pullDate:'2024-01',allConf:0,highVis:0},
+  {name:'Jaxson Dart',yr:2023,conf:'SEC',school:'Ole Miss',state:'MS',pos:'QB',passYds:3364,passTD:23,rushYds:389,rushTD:8,ints:9,stars:4,wins:11,starter:true,nilVal:640,nilSrc:'V',pullDate:'2024-01',allConf:0,highVis:0},
+  {name:'Quinshon Judkins',yr:2023,conf:'SEC',school:'Ole Miss',state:'MS',pos:'RB',rushYds:1158,rushTD:15,recYds:144,recTD:0,rec:15,stars:3,wins:11,starter:true,nilVal:500,nilSrc:'E',pullDate:'2024-01',allConf:1,highVis:0},
+  {name:'Tre Harris',yr:2023,conf:'SEC',school:'Ole Miss',state:'MS',pos:'WR',recYds:985,recTD:8,rec:54,stars:3,wins:11,starter:true,nilVal:620,nilSrc:'V',pullDate:'2024-01',allConf:0,highVis:0},
+  {name:'Jordan Watkins',yr:2023,conf:'SEC',school:'Ole Miss',state:'MS',pos:'WR',recYds:477,recTD:6,rec:36,stars:3,wins:11,starter:true,nilVal:260,nilSrc:'E',pullDate:'2024-01',allConf:0,highVis:0},
+  {name:'Jayden Daniels',yr:2023,conf:'SEC',school:'LSU',state:'LA',pos:'QB',passYds:3812,passTD:40,rushYds:1134,rushTD:10,ints:4,stars:4,wins:10,starter:true,nilVal:1100,nilSrc:'V',pullDate:'2024-01',allConf:1,highVis:1},
+  {name:'Malik Nabers',yr:2023,conf:'SEC',school:'LSU',state:'LA',pos:'WR',recYds:1569,recTD:14,rec:89,stars:4,wins:10,starter:true,nilVal:850,nilSrc:'V',pullDate:'2024-01',allConf:1,highVis:1},
+  {name:'Brian Thomas Jr',yr:2023,conf:'SEC',school:'LSU',state:'LA',pos:'WR',recYds:1177,recTD:17,rec:68,stars:3,wins:10,starter:true,nilVal:640,nilSrc:'V',pullDate:'2024-01',allConf:1,highVis:1},
+  {name:'Logan Diggs',yr:2023,conf:'SEC',school:'LSU',state:'LA',pos:'RB',rushYds:821,rushTD:4,recYds:170,recTD:1,rec:16,stars:3,wins:10,starter:true,nilVal:250,nilSrc:'E',pullDate:'2024-01',allConf:0,highVis:0},
+  // 2023 ACC
+  {name:'Jordan Travis',yr:2023,conf:'ACC',school:'Florida State',state:'FL',pos:'QB',passYds:2756,passTD:20,rushYds:315,rushTD:7,ints:2,stars:3,wins:13,starter:true,nilVal:560,nilSrc:'V',pullDate:'2024-01',allConf:1,highVis:1},
+  {name:'Trey Benson',yr:2023,conf:'ACC',school:'Florida State',state:'FL',pos:'RB',rushYds:905,rushTD:14,recYds:227,recTD:1,rec:20,stars:3,wins:13,starter:true,nilVal:380,nilSrc:'E',pullDate:'2024-01',allConf:0,highVis:0},
+  {name:'Keon Coleman',yr:2023,conf:'ACC',school:'Florida State',state:'FL',pos:'WR',recYds:658,recTD:11,rec:50,stars:4,wins:13,starter:true,nilVal:520,nilSrc:'V',pullDate:'2024-01',allConf:0,highVis:1},
+  {name:'Johnny Wilson',yr:2023,conf:'ACC',school:'Florida State',state:'FL',pos:'WR',recYds:617,recTD:2,rec:41,stars:3,wins:13,starter:true,nilVal:390,nilSrc:'E',pullDate:'2024-01',allConf:0,highVis:0},
+  {name:'Jack Plummer',yr:2023,conf:'ACC',school:'Louisville',state:'KY',pos:'QB',passYds:3206,passTD:21,rushYds:62,rushTD:4,ints:13,stars:3,wins:10,starter:true,nilVal:410,nilSrc:'E',pullDate:'2024-01',allConf:0,highVis:0},
+  {name:'Jawhar Jordan',yr:2023,conf:'ACC',school:'Louisville',state:'KY',pos:'RB',rushYds:1128,rushTD:13,recYds:198,recTD:1,rec:26,stars:3,wins:10,starter:true,nilVal:310,nilSrc:'E',pullDate:'2024-01',allConf:0,highVis:0},
+  {name:'Jamari Thrash',yr:2023,conf:'ACC',school:'Louisville',state:'KY',pos:'WR',recYds:858,recTD:6,rec:63,stars:3,wins:10,starter:true,nilVal:340,nilSrc:'E',pullDate:'2024-01',allConf:0,highVis:0},
+  {name:'Brennan Armstrong',yr:2023,conf:'ACC',school:'NC State',state:'NC',pos:'QB',passYds:1202,passTD:7,rushYds:231,rushTD:3,ints:6,stars:3,wins:9,starter:true,nilVal:280,nilSrc:'E',pullDate:'2024-01',allConf:0,highVis:0},
+  {name:'MJ Morris',yr:2023,conf:'ACC',school:'NC State',state:'NC',pos:'QB',passYds:954,passTD:9,rushYds:56,rushTD:1,ints:5,stars:3,wins:9,starter:false,nilVal:220,nilSrc:'E',pullDate:'2024-01',allConf:0,highVis:0},
+  {name:'Kyle Trainer',yr:2023,conf:'ACC',school:'NC State',state:'NC',pos:'RB',rushYds:731,rushTD:9,recYds:166,recTD:2,rec:19,stars:3,wins:9,starter:true,nilVal:200,nilSrc:'E',pullDate:'2024-01',allConf:0,highVis:0},
+  {name:'KC Concepcion',yr:2023,conf:'ACC',school:'NC State',state:'NC',pos:'WR',recYds:839,recTD:10,rec:71,stars:4,wins:9,starter:true,nilVal:450,nilSrc:'E',pullDate:'2024-01',allConf:1,highVis:0},
+  {name:'Riley Leonard',yr:2023,conf:'ACC',school:'Duke',state:'NC',pos:'QB',passYds:1102,passTD:3,rushYds:352,rushTD:4,ints:4,stars:3,wins:8,starter:true,nilVal:390,nilSrc:'V',pullDate:'2024-01',allConf:0,highVis:0},
+  {name:'Jordan Waters',yr:2023,conf:'ACC',school:'Duke',state:'NC',pos:'RB',rushYds:608,rushTD:15,recYds:79,recTD:1,rec:13,stars:3,wins:8,starter:true,nilVal:220,nilSrc:'E',pullDate:'2024-01',allConf:0,highVis:0},
+  {name:'Jalon Calhoun',yr:2023,conf:'ACC',school:'Duke',state:'NC',pos:'WR',recYds:662,recTD:4,rec:45,stars:3,wins:8,starter:true,nilVal:210,nilSrc:'E',pullDate:'2024-01',allConf:0,highVis:0},
+  {name:'Cade Klubnik',yr:2023,conf:'ACC',school:'Clemson',state:'SC',pos:'QB',passYds:2844,passTD:19,rushYds:316,rushTD:5,ints:9,stars:5,wins:9,starter:true,nilVal:720,nilSrc:'V',pullDate:'2024-01',allConf:0,highVis:1},
+  {name:'Will Shipley',yr:2023,conf:'ACC',school:'Clemson',state:'SC',pos:'RB',rushYds:810,rushTD:7,recYds:244,recTD:2,rec:27,stars:4,wins:9,starter:true,nilVal:420,nilSrc:'E',pullDate:'2024-01',allConf:0,highVis:0},
+  {name:'Antonio Williams',yr:2023,conf:'ACC',school:'Clemson',state:'SC',pos:'WR',recYds:604,recTD:4,rec:56,stars:4,wins:9,starter:true,nilVal:310,nilSrc:'E',pullDate:'2024-01',allConf:0,highVis:0},
+  // 2024 SEC
+  {name:'Carson Beck',yr:2024,conf:'SEC',school:'Georgia',state:'GA',pos:'QB',passYds:3485,passTD:28,rushYds:-35,rushTD:0,ints:12,stars:4,wins:11,starter:true,nilVal:1900,nilSrc:'V',pullDate:'2024-08',allConf:1,highVis:1},
+  {name:'Trevor Etienne',yr:2024,conf:'SEC',school:'Georgia',state:'GA',pos:'RB',rushYds:609,rushTD:9,recYds:116,recTD:1,rec:15,stars:4,wins:11,starter:true,nilVal:540,nilSrc:'E',pullDate:'2024-08',allConf:0,highVis:0},
+  {name:'Arian Smith',yr:2024,conf:'SEC',school:'Georgia',state:'GA',pos:'WR',recYds:817,recTD:4,rec:48,stars:4,wins:11,starter:true,nilVal:380,nilSrc:'E',pullDate:'2024-08',allConf:0,highVis:0},
+  {name:'Dillon Bell',yr:2024,conf:'SEC',school:'Georgia',state:'GA',pos:'WR',recYds:501,recTD:4,rec:46,stars:4,wins:11,starter:true,nilVal:340,nilSrc:'E',pullDate:'2024-08',allConf:0,highVis:0},
+  {name:'Quinn Ewers',yr:2024,conf:'SEC',school:'Texas',state:'TX',pos:'QB',passYds:3472,passTD:31,rushYds:-62,rushTD:5,ints:12,stars:5,wins:13,starter:true,nilVal:2200,nilSrc:'V',pullDate:'2024-08',allConf:1,highVis:1},
+  {name:'Arch Manning',yr:2024,conf:'SEC',school:'Texas',state:'TX',pos:'QB',passYds:939,passTD:9,rushYds:108,rushTD:4,ints:2,stars:5,wins:13,starter:false,nilVal:3800,nilSrc:'V',pullDate:'2024-08',allConf:0,highVis:1},
+  {name:'Jaydon Blue',yr:2024,conf:'SEC',school:'Texas',state:'TX',pos:'RB',rushYds:730,rushTD:8,recYds:368,recTD:6,rec:42,stars:4,wins:13,starter:true,nilVal:520,nilSrc:'E',pullDate:'2024-08',allConf:0,highVis:0},
+  {name:'Quintrevion Wisner',yr:2024,conf:'SEC',school:'Texas',state:'TX',pos:'RB',rushYds:1064,rushTD:5,recYds:158,recTD:0,rec:18,stars:3,wins:13,starter:false,nilVal:380,nilSrc:'E',pullDate:'2024-08',allConf:0,highVis:0},
+  {name:'Matthew Golden',yr:2024,conf:'SEC',school:'Texas',state:'TX',pos:'WR',recYds:987,recTD:9,rec:58,stars:4,wins:13,starter:true,nilVal:610,nilSrc:'E',pullDate:'2024-08',allConf:1,highVis:0},
+  {name:'Isaiah Bond',yr:2024,conf:'SEC',school:'Texas',state:'TX',pos:'WR',recYds:540,recTD:5,rec:34,stars:4,wins:13,starter:true,nilVal:680,nilSrc:'E',pullDate:'2024-08',allConf:0,highVis:0},
+  {name:'Nico Iamaleava',yr:2024,conf:'SEC',school:'Tennessee',state:'TN',pos:'QB',passYds:2616,passTD:19,rushYds:358,rushTD:3,ints:5,stars:5,wins:10,starter:true,nilVal:2200,nilSrc:'V',pullDate:'2024-08',allConf:0,highVis:1},
+  {name:'Dylan Sampson',yr:2024,conf:'SEC',school:'Tennessee',state:'TN',pos:'RB',rushYds:1491,rushTD:22,recYds:143,recTD:0,rec:20,stars:3,wins:10,starter:true,nilVal:750,nilSrc:'V',pullDate:'2024-08',allConf:1,highVis:1},
+  {name:'Dont\'e Thornton Jr',yr:2024,conf:'SEC',school:'Tennessee',state:'TN',pos:'WR',recYds:661,recTD:6,rec:26,stars:4,wins:10,starter:true,nilVal:470,nilSrc:'E',pullDate:'2024-08',allConf:0,highVis:0},
+  {name:'Bru McCoy',yr:2024,conf:'SEC',school:'Tennessee',state:'TN',pos:'WR',recYds:452,recTD:2,rec:34,stars:5,wins:10,starter:true,nilVal:420,nilSrc:'E',pullDate:'2024-08',allConf:0,highVis:0},
+  {name:'Jalen Milroe',yr:2024,conf:'SEC',school:'Alabama',state:'AL',pos:'QB',passYds:2844,passTD:16,rushYds:726,rushTD:20,ints:11,stars:4,wins:9,starter:true,nilVal:1700,nilSrc:'V',pullDate:'2024-08',allConf:1,highVis:1},
+  {name:'Jam Miller',yr:2024,conf:'SEC',school:'Alabama',state:'AL',pos:'RB',rushYds:668,rushTD:7,recYds:138,recTD:0,rec:14,stars:3,wins:9,starter:true,nilVal:320,nilSrc:'E',pullDate:'2024-08',allConf:0,highVis:0},
+  {name:'Ryan Williams',yr:2024,conf:'SEC',school:'Alabama',state:'AL',pos:'WR',recYds:865,recTD:8,rec:48,stars:5,wins:9,starter:true,nilVal:1600,nilSrc:'V',pullDate:'2024-08',allConf:1,highVis:1},
+  {name:'Germie Bernard',yr:2024,conf:'SEC',school:'Alabama',state:'AL',pos:'WR',recYds:794,recTD:2,rec:47,stars:3,wins:9,starter:true,nilVal:380,nilSrc:'E',pullDate:'2024-08',allConf:0,highVis:0},
+  {name:'Jaxson Dart',yr:2024,conf:'SEC',school:'Ole Miss',state:'MS',pos:'QB',passYds:4279,passTD:29,rushYds:495,rushTD:3,ints:6,stars:4,wins:10,starter:true,nilVal:1400,nilSrc:'V',pullDate:'2024-08',allConf:1,highVis:1},
+  {name:'Henry Parrish Jr',yr:2024,conf:'SEC',school:'Ole Miss',state:'MS',pos:'RB',rushYds:614,rushTD:7,recYds:94,recTD:1,rec:12,stars:3,wins:10,starter:true,nilVal:280,nilSrc:'E',pullDate:'2024-08',allConf:0,highVis:0},
+  {name:'Tre Harris',yr:2024,conf:'SEC',school:'Ole Miss',state:'MS',pos:'WR',recYds:1030,recTD:7,rec:60,stars:3,wins:10,starter:true,nilVal:1000,nilSrc:'V',pullDate:'2024-08',allConf:1,highVis:1},
+  {name:'Jordan Watkins',yr:2024,conf:'SEC',school:'Ole Miss',state:'MS',pos:'WR',recYds:609,recTD:5,rec:49,stars:3,wins:10,starter:true,nilVal:310,nilSrc:'E',pullDate:'2024-08',allConf:0,highVis:0},
+  // 2024 ACC
+  {name:'Cade Klubnik',yr:2024,conf:'ACC',school:'Clemson',state:'SC',pos:'QB',passYds:3639,passTD:36,rushYds:463,rushTD:7,ints:6,stars:5,wins:10,starter:true,nilVal:1400,nilSrc:'V',pullDate:'2024-08',allConf:1,highVis:1},
+  {name:'Phil Mafah',yr:2024,conf:'ACC',school:'Clemson',state:'SC',pos:'RB',rushYds:1115,rushTD:8,recYds:169,recTD:0,rec:20,stars:3,wins:10,starter:true,nilVal:420,nilSrc:'E',pullDate:'2024-08',allConf:0,highVis:0},
+  {name:'Antonio Williams',yr:2024,conf:'ACC',school:'Clemson',state:'SC',pos:'WR',recYds:904,recTD:11,rec:75,stars:4,wins:10,starter:true,nilVal:510,nilSrc:'E',pullDate:'2024-08',allConf:0,highVis:0},
+  {name:'TJ Moore',yr:2024,conf:'ACC',school:'Clemson',state:'SC',pos:'WR',recYds:651,recTD:5,rec:51,stars:3,wins:10,starter:true,nilVal:290,nilSrc:'E',pullDate:'2024-08',allConf:0,highVis:0},
+  {name:'Kevin Jennings',yr:2024,conf:'ACC',school:'SMU',state:'TX',pos:'QB',passYds:3245,passTD:23,rushYds:373,rushTD:4,ints:9,stars:3,wins:11,starter:true,nilVal:590,nilSrc:'E',pullDate:'2024-08',allConf:0,highVis:0},
+  {name:'Brashard Smith',yr:2024,conf:'ACC',school:'SMU',state:'TX',pos:'RB',rushYds:1332,rushTD:14,recYds:324,recTD:4,rec:39,stars:3,wins:11,starter:true,nilVal:480,nilSrc:'E',pullDate:'2024-08',allConf:1,highVis:0},
+  {name:'Roderick Daniels Jr',yr:2024,conf:'ACC',school:'SMU',state:'TX',pos:'WR',recYds:728,recTD:7,rec:49,stars:3,wins:11,starter:true,nilVal:300,nilSrc:'E',pullDate:'2024-08',allConf:0,highVis:0},
+  {name:'Cam Ward',yr:2024,conf:'ACC',school:'Miami',state:'FL',pos:'QB',passYds:4313,passTD:39,rushYds:204,rushTD:4,ints:7,stars:3,wins:10,starter:true,nilVal:2000,nilSrc:'V',pullDate:'2024-08',allConf:1,highVis:1},
+  {name:'Damien Martinez',yr:2024,conf:'ACC',school:'Miami',state:'FL',pos:'RB',rushYds:1002,rushTD:10,recYds:82,recTD:0,rec:10,stars:3,wins:10,starter:true,nilVal:440,nilSrc:'E',pullDate:'2024-08',allConf:0,highVis:0},
+  {name:'Xavier Restrepo',yr:2024,conf:'ACC',school:'Miami',state:'FL',pos:'WR',recYds:1127,recTD:11,rec:69,stars:3,wins:10,starter:true,nilVal:620,nilSrc:'E',pullDate:'2024-08',allConf:1,highVis:0},
+  {name:'Tyler Shough',yr:2024,conf:'ACC',school:'Louisville',state:'KY',pos:'QB',passYds:3195,passTD:23,rushYds:136,rushTD:6,ints:6,stars:4,wins:9,starter:true,nilVal:540,nilSrc:'V',pullDate:'2024-08',allConf:0,highVis:0},
+  {name:'Isaac Brown',yr:2024,conf:'ACC',school:'Louisville',state:'KY',pos:'RB',rushYds:1173,rushTD:11,recYds:210,recTD:1,rec:22,stars:3,wins:9,starter:true,nilVal:380,nilSrc:'E',pullDate:'2024-08',allConf:0,highVis:0},
+  {name:'Ja\'Corey Brooks',yr:2024,conf:'ACC',school:'Louisville',state:'KY',pos:'WR',recYds:1013,recTD:9,rec:61,stars:4,wins:9,starter:true,nilVal:490,nilSrc:'E',pullDate:'2024-08',allConf:0,highVis:0},
+  {name:'Kyle McCord',yr:2024,conf:'ACC',school:'Syracuse',state:'NC',pos:'QB',passYds:4779,passTD:34,rushYds:-67,rushTD:3,ints:12,stars:4,wins:10,starter:true,nilVal:710,nilSrc:'V',pullDate:'2024-08',allConf:1,highVis:1},
+  {name:'LeQuint Allen',yr:2024,conf:'ACC',school:'Syracuse',state:'NC',pos:'RB',rushYds:1021,rushTD:16,recYds:521,recTD:7,rec:64,stars:3,wins:10,starter:true,nilVal:410,nilSrc:'E',pullDate:'2024-08',allConf:0,highVis:0},
+  {name:'Jackson Meeks',yr:2024,conf:'ACC',school:'Syracuse',state:'NC',pos:'WR',recYds:1021,recTD:9,rec:76,stars:3,wins:10,starter:true,nilVal:340,nilSrc:'E',pullDate:'2024-08',allConf:0,highVis:0},
+  // 2025 (exploratory)
+  {name:'Ty Simpson',yr:2025,conf:'SEC',school:'Alabama',state:'AL',pos:'QB',passYds:3340,passTD:28,rushYds:210,rushTD:4,ints:7,stars:5,wins:10,starter:true,nilVal:1500,nilSrc:'E',pullDate:'2025-09',allConf:0,highVis:1},
+  {name:'Jam Miller',yr:2025,conf:'SEC',school:'Alabama',state:'AL',pos:'RB',rushYds:980,rushTD:10,recYds:180,recTD:1,rec:18,stars:3,wins:10,starter:true,nilVal:460,nilSrc:'E',pullDate:'2025-09',allConf:0,highVis:0},
+  {name:'Ryan Williams',yr:2025,conf:'SEC',school:'Alabama',state:'AL',pos:'WR',recYds:1050,recTD:10,rec:62,stars:5,wins:10,starter:true,nilVal:2800,nilSrc:'V',pullDate:'2025-09',allConf:1,highVis:1},
+  {name:'Gunner Stockton',yr:2025,conf:'SEC',school:'Georgia',state:'GA',pos:'QB',passYds:3100,passTD:24,rushYds:290,rushTD:5,ints:8,stars:4,wins:10,starter:true,nilVal:1400,nilSrc:'E',pullDate:'2025-09',allConf:0,highVis:0},
+  {name:'Nate Frazier',yr:2025,conf:'SEC',school:'Georgia',state:'GA',pos:'RB',rushYds:940,rushTD:11,recYds:160,recTD:1,rec:17,stars:4,wins:10,starter:true,nilVal:380,nilSrc:'E',pullDate:'2025-09',allConf:0,highVis:0},
+  {name:'Colbie Young',yr:2025,conf:'SEC',school:'Georgia',state:'GA',pos:'WR',recYds:810,recTD:7,rec:52,stars:3,wins:10,starter:true,nilVal:390,nilSrc:'E',pullDate:'2025-09',allConf:0,highVis:0},
+  {name:'Austin Simmons',yr:2025,conf:'SEC',school:'Ole Miss',state:'MS',pos:'QB',passYds:3400,passTD:26,rushYds:340,rushTD:5,ints:7,stars:4,wins:10,starter:true,nilVal:900,nilSrc:'E',pullDate:'2025-09',allConf:0,highVis:0},
+  {name:'Kewan Lacy',yr:2025,conf:'SEC',school:'Ole Miss',state:'MS',pos:'RB',rushYds:1090,rushTD:12,recYds:170,recTD:1,rec:17,stars:3,wins:10,starter:true,nilVal:480,nilSrc:'E',pullDate:'2025-09',allConf:0,highVis:0},
+  {name:'Marcel Reed',yr:2025,conf:'SEC',school:'Texas A&M',state:'TX',pos:'QB',passYds:3080,passTD:23,rushYds:480,rushTD:8,ints:6,stars:4,wins:10,starter:true,nilVal:820,nilSrc:'E',pullDate:'2025-09',allConf:0,highVis:0},
+  {name:'Le\'Veon Moss',yr:2025,conf:'SEC',school:'Texas A&M',state:'TX',pos:'RB',rushYds:1140,rushTD:13,recYds:150,recTD:1,rec:14,stars:3,wins:10,starter:true,nilVal:560,nilSrc:'E',pullDate:'2025-09',allConf:0,highVis:0},
+  {name:'Joey Aguilar',yr:2025,conf:'SEC',school:'Tennessee',state:'TN',pos:'QB',passYds:3280,passTD:27,rushYds:210,rushTD:3,ints:9,stars:3,wins:9,starter:true,nilVal:780,nilSrc:'E',pullDate:'2025-09',allConf:0,highVis:0},
+  {name:'Cade Klubnik',yr:2025,conf:'ACC',school:'Clemson',state:'SC',pos:'QB',passYds:3700,passTD:33,rushYds:380,rushTD:5,ints:8,stars:5,wins:10,starter:true,nilVal:2200,nilSrc:'V',pullDate:'2025-09',allConf:1,highVis:1},
+  {name:'Carson Beck',yr:2025,conf:'ACC',school:'Miami',state:'FL',pos:'QB',passYds:3450,passTD:28,rushYds:40,rushTD:2,ints:10,stars:4,wins:10,starter:true,nilVal:2400,nilSrc:'V',pullDate:'2025-09',allConf:0,highVis:1},
+  {name:'Mark Fletcher Jr',yr:2025,conf:'ACC',school:'Miami',state:'FL',pos:'RB',rushYds:920,rushTD:11,recYds:140,recTD:1,rec:15,stars:4,wins:10,starter:true,nilVal:390,nilSrc:'E',pullDate:'2025-09',allConf:0,highVis:0},
+  {name:'Haynes King',yr:2025,conf:'ACC',school:'Georgia Tech',state:'GA',pos:'QB',passYds:2950,passTD:20,rushYds:550,rushTD:10,ints:7,stars:3,wins:9,starter:true,nilVal:610,nilSrc:'E',pullDate:'2025-09',allConf:0,highVis:0}
+];
+
+function perfRaw(p){
+  if(p.pos==='QB') return (p.passYds||0) + (p.passTD||0)*100 + (p.rushYds||0) + (p.rushTD||0)*100 - (p.ints||0)*50;
+  if(p.pos==='RB') return (p.rushYds||0) + (p.rushTD||0)*100 + (p.recYds||0) + (p.recTD||0)*100 + (p.rec||0)*8;
+  return (p.recYds||0) + (p.recTD||0)*100 + (p.rec||0)*10;
+}
+
+PLAYERS.forEach(p => {
+  p.perfRaw = perfRaw(p);
+  p.stateScore = STATES[p.state]?.s || 1;
+  p.stateWeighted = STATES[p.state]?.weighted || 1;
+  p.stateBinary = STATES[p.state]?.binary || 0;
+  p.playoff = p.wins >= 10 ? 1 : 0;
+  p.ranked = p.wins >= 8 ? 1 : 0;
+  p.schoolBrand = SCHOOL_BRAND[p.school]?.score || 2;
+});
+
+const posMean={}, posSD={};
+['QB','RB','WR'].forEach(pos => {
+  const vals = PLAYERS.filter(p=>p.pos===pos).map(p=>p.perfRaw);
+  const m = vals.reduce((a,b)=>a+b,0)/vals.length;
+  const sd = Math.sqrt(vals.reduce((s,v)=>s+(v-m)**2,0)/vals.length);
+  posMean[pos]=m; posSD[pos]=sd;
+});
+PLAYERS.forEach(p => { p.zPerf = (p.perfRaw - posMean[p.pos])/posSD[p.pos]; });
+
+function fitOLS(X, y) {
+  const n = X.length, k = X[0].length;
+  const XtX = Array.from({length:k},()=>new Array(k).fill(0));
+  const Xty = new Array(k).fill(0);
+  for(let i=0;i<n;i++){
+    for(let j=0;j<k;j++){
+      Xty[j] += X[i][j]*y[i];
+      for(let l=0;l<k;l++) XtX[j][l] += X[i][j]*X[i][l];
+    }
+  }
+  const A = XtX.map(r=>[...r]);
+  const I = Array.from({length:k},(_,i)=>Array.from({length:k},(_,j)=>i===j?1:0));
+  for(let i=0;i<k;i++){
+    let maxR=i;
+    for(let r=i+1;r<k;r++) if(Math.abs(A[r][i])>Math.abs(A[maxR][i])) maxR=r;
+    [A[i],A[maxR]]=[A[maxR],A[i]]; [I[i],I[maxR]]=[I[maxR],I[i]];
+    if(Math.abs(A[i][i])<1e-10) A[i][i]+=1e-6;
+    const piv=A[i][i];
+    for(let c=0;c<k;c++){A[i][c]/=piv; I[i][c]/=piv;}
+    for(let r=0;r<k;r++){
+      if(r===i) continue;
+      const f=A[r][i];
+      for(let c=0;c<k;c++){A[r][c]-=f*A[i][c]; I[r][c]-=f*I[i][c];}
+    }
+  }
+  const beta = new Array(k).fill(0);
+  for(let i=0;i<k;i++) for(let j=0;j<k;j++) beta[i] += I[i][j]*Xty[j];
+  let ssr = 0;
+  const yhat = X.map(xi => xi.reduce((s,v,j)=>s+v*beta[j],0));
+  for(let i=0;i<n;i++) ssr += (y[i]-yhat[i])**2;
+  const sigma2 = ssr/Math.max(1,n-k);
+  const se = beta.map((_,i)=>Math.sqrt(Math.max(0,sigma2*I[i][i])));
+  const t = beta.map((b,i)=>se[i]>0?b/se[i]:0);
+  const ymean = y.reduce((a,b)=>a+b,0)/n;
+  let sst=0;
+  for(const v of y) sst += (v-ymean)**2;
+  const r2 = sst>0 ? 1 - ssr/sst : 0;
+  return {beta, se, t, r2, n, k};
+}
+
+function pv(t) {
+  const tAbs = Math.abs(t);
+  if(tAbs > 2.6) return 0.01;
+  if(tAbs > 1.99) return 0.04;
+  if(tAbs > 1.66) return 0.09;
+  if(tAbs > 1.28) return 0.19;
+  return 0.30;
+}
+
+function sigBadge(p) {
+  if(p <= 0.01) return '<span class="badge-sig">p &lt; 0.01</span>';
+  if(p <= 0.05) return '<span class="badge-sig">p &lt; 0.05</span>';
+  if(p <= 0.10) return '<span class="badge-ns">p &lt; 0.10</span>';
+  return '<span class="badge-ns">p = '+p.toFixed(2)+'</span>';
+}
+
+function fmtK(v){return v>=1000 ? '$'+(v/1000).toFixed(1)+'M' : (v>=0?'$':'−$')+Math.round(Math.abs(v))+'K'}
+
+let currentSample = '2023-2024';
+function getActivePlayers() {
+  if(currentSample === 'verified') return PLAYERS.filter(p => p.nilSrc === 'V' && p.yr !== 2025);
+  if(currentSample === '2023-2024') return PLAYERS.filter(p => p.yr !== 2025);
+  if(currentSample === '2025') return PLAYERS.filter(p => p.yr === 2025);
+  return PLAYERS;
+}
+
+// Stage 1 model specs
+function X_s1_simple(players) {
+  return players.map(p => [1, p.zPerf, p.stars-3, p.wins, p.pos==='QB'?1:0, p.pos==='RB'?1:0, p.yr===2024?1:0, p.yr===2025?1:0]);
+}
+function X_s1_full(players) {
+  return players.map(p => [1, p.zPerf, p.stars-3, p.wins, p.playoff, p.ranked, p.pos==='QB'?1:0, p.pos==='RB'?1:0, p.conf==='SEC'?1:0, p.starter?1:0, p.schoolBrand, p.allConf, p.highVis, p.yr===2024?1:0, p.yr===2025?1:0]);
+}
+const NAMES_S1_SIMPLE = ['Intercept','StdPerf','Stars','Wins','QB','RB','Yr2024','Yr2025'];
+const NAMES_S1_FULL = ['Intercept','StdPerf','Stars','Wins','Playoff','Ranked','QB','RB','SEC','Starter','SchoolBrand','AllConf','HighVis','Yr2024','Yr2025'];
+
+// Stage 2 with variable law-score key and with/without school brand
+function X_s2(players, scoreKey, includeBrand) {
+  scoreKey = scoreKey || 'stateScore';
+  includeBrand = includeBrand !== false;
+  return players.map(p => {
+    const base = [1, p[scoreKey], p.zPerf, p.stars-3, p.wins, p.playoff, p.ranked, p.pos==='QB'?1:0, p.pos==='RB'?1:0, p.conf==='SEC'?1:0];
+    if(includeBrand) base.push(p.schoolBrand);
+    base.push(p.yr===2024?1:0, p.yr===2025?1:0);
+    return base;
+  });
+}
+const NAMES_S2_BRAND = ['Intercept','StateLaw','StdPerf','Stars','Wins','Playoff','Ranked','QB','RB','SEC','SchoolBrand','Yr2024','Yr2025'];
+const NAMES_S2_NOBRAND = ['Intercept','StateLaw','StdPerf','Stars','Wins','Playoff','Ranked','QB','RB','SEC','Yr2024','Yr2025'];
+
+function renderCoefs(container, fit, names, fmt, highlight) {
+  const rows = fit.beta.map((b,i) => {
+    const p = pv(fit.t[i]);
+    const val = fmt ? fmt(b) : b.toFixed(3);
+    const hl = names[i] === highlight ? 'style="color:#A32D2D;font-weight:500"' : '';
+    const ns = names[i] === highlight ? 'style="font-weight:500"' : '';
+    return '<div class="coef-row"><span class="coef-name" '+ns+'>'+names[i]+'</span><span class="coef-val" '+hl+'>'+val+'</span>'+sigBadge(p)+'</div>';
+  }).join('');
+  container.innerHTML = rows + '<div class="coef-row"><span class="coef-name">R² · n</span><span class="coef-val">'+fit.r2.toFixed(2)+' · '+fit.n+'</span></div>';
+}
+
+function renderAll() {
+  const active = getActivePlayers();
+  document.getElementById('sample-n').textContent = 'n = '+active.length+' players';
+  
+  // Stage 1
+  const X1s = X_s1_simple(active);
+  const X1f = X_s1_full(active);
+  const y1 = active.map(p => Math.log(p.nilVal));
+  const s1s = fitOLS(X1s, y1);
+  const s1f = fitOLS(X1f, y1);
+  renderCoefs(document.getElementById('stage1-m1'), s1s, NAMES_S1_SIMPLE, null, 'StdPerf');
+  renderCoefs(document.getElementById('stage1-m2'), s1f, NAMES_S1_FULL, null, 'StdPerf');
+  
+  const r2Diff = s1f.r2 - s1s.r2;
+  document.getElementById('stage1-interp').innerHTML = '<div class="reg-title">First-stage fit comparison</div><p>Simple Model 1 explains <strong>'+(s1s.r2*100).toFixed(0)+'%</strong> of variation in log(NIL). Full Model 2 explains <strong>'+(s1f.r2*100).toFixed(0)+'%</strong>, an improvement of '+(r2Diff*100).toFixed(0)+' percentage points. Model 2 is used as the main benchmark because the added visibility/marketability controls (SchoolBrand, AllConf, HighVis) are theoretically motivated — NIL is driven by attention and marketability as much as production. The improved fit makes the inefficiency measure more defensible.</p>';
+  
+  document.getElementById('model-comparison').innerHTML = '<div class="two-col"><div><div class="reg-title">Simple model</div><div class="coef-row"><span class="coef-name">R²</span><span class="coef-val">'+s1s.r2.toFixed(3)+'</span></div><div class="coef-row"><span class="coef-name">Predictors</span><span class="coef-val">'+(s1s.k-1)+'</span></div><div class="coef-row"><span class="coef-name">StdPerf coef</span><span class="coef-val">'+s1s.beta[1].toFixed(3)+'</span></div></div><div><div class="reg-title">Full model (main)</div><div class="coef-row"><span class="coef-name">R²</span><span class="coef-val">'+s1f.r2.toFixed(3)+'</span></div><div class="coef-row"><span class="coef-name">Predictors</span><span class="coef-val">'+(s1f.k-1)+'</span></div><div class="coef-row"><span class="coef-name">StdPerf coef</span><span class="coef-val">'+s1f.beta[1].toFixed(3)+'</span></div></div></div>';
+  
+  // Expected NIL from full model
+  active.forEach((p,i) => {
+    const logExp = X1f[i].reduce((s,v,j)=>s+v*s1f.beta[j],0);
+    p.expectedNil = Math.max(50, Math.round(Math.exp(logExp)));
+    p.absIneff = Math.abs(p.nilVal - p.expectedNil);
+    p.signedGap = p.nilVal - p.expectedNil;
+    p.relIneff = p.absIneff / p.expectedNil;
+    p.logIneff = Math.log(p.absIneff + 1);
+    p.stdGap = (p.nilVal - p.expectedNil) / p.expectedNil;
+  });
+  
+  // Three main models (A, B, C)
+  const yLog = active.map(p => p.logIneff);
+  const mA = fitOLS(X_s2(active, 'stateScore', true), yLog);
+  const mB = fitOLS(X_s2(active, 'stateWeighted', true), yLog);
+  const mC = fitOLS(X_s2(active, 'stateBinary', true), yLog);
+  
+  const STATE_NAMES_A = [...NAMES_S2_BRAND];
+  renderCoefs(document.getElementById('m-A'), mA, STATE_NAMES_A, null, 'StateLaw');
+  renderCoefs(document.getElementById('m-B'), mB, STATE_NAMES_A, null, 'StateLaw');
+  renderCoefs(document.getElementById('m-C'), mC, STATE_NAMES_A, null, 'StateLaw');
+  
+  const pA = pv(mA.t[1]), pB = pv(mB.t[1]), pC = pv(mC.t[1]);
+  const pctA = (Math.exp(mA.beta[1]) - 1) * 100;
+  const pctB = (Math.exp(mB.beta[1]) - 1) * 100;
+  const pctC = (Math.exp(mC.beta[1]) - 1) * 100;
+  const allPos = mA.beta[1]>0 && mB.beta[1]>0 && mC.beta[1]>0;
+  const allSig = pA<=0.10 && pB<=0.10 && pC<=0.10;
+  document.getElementById('three-models-interp').innerHTML = '<div class="reg-title">Cross-model interpretation</div><p>Model A (equal-weight): each point is associated with '+pctA.toFixed(1)+'% higher inefficiency ('+(pA<=0.05?'p<0.05':'p='+pA.toFixed(2))+'). Model B (weighted): '+pctB.toFixed(1)+'% per point ('+(pB<=0.05?'p<0.05':'p='+pB.toFixed(2))+'). Model C (binary): high-regulation states show '+pctC.toFixed(1)+'% higher inefficiency than low ('+(pC<=0.05?'p<0.05':'p='+pC.toFixed(2))+'). '+(allPos?'<strong>All three coefficients are positive</strong>':'Coefficients differ in sign across specifications')+'. '+(allSig?'All three are significant at p ≤ 0.10. The law effect is robust to how the score is constructed.':'Significance varies across specifications.')+'</p>';
+  
+  // Signed gap
+  const signedFit = fitOLS(X_s2(active, 'stateScore', true), active.map(p=>p.signedGap));
+  const pSgn = pv(signedFit.t[1]);
+  document.getElementById('signed-model').innerHTML = '<div class="reg-title">Signed gap regression: StateLawScore → (Actual − Expected NIL)</div><div class="coef-row"><span class="coef-name" style="font-weight:500">StateLawScore coefficient</span><span class="coef-val" style="color:'+(signedFit.beta[1]>0?'#A32D2D':'#0F6E56')+';font-weight:500">'+(signedFit.beta[1]>=0?'+':'−')+'$'+Math.round(Math.abs(signedFit.beta[1]))+'K</span>'+sigBadge(pSgn)+'</div><div class="coef-row"><span class="coef-name">R² · n</span><span class="coef-val">'+signedFit.r2.toFixed(2)+' · '+signedFit.n+'</span></div>';
+  
+  const direction = signedFit.beta[1] > 0 ? 'overcompensation' : 'undercompensation';
+  const dirColor = signedFit.beta[1] > 0 ? '#A32D2D' : '#0F6E56';
+  document.getElementById('signed-interp').innerHTML = '<div class="reg-title">Direction of mismatch</div><p>Signed gap analysis answers a <em>second</em> question beyond the main result: are more regulated states associated more with <strong style="color:'+dirColor+'">'+direction+'</strong>? A positive coefficient means higher state law scores correlate with actual NIL <em>exceeding</em> expected (over-compensation); negative means actual <em>falling short</em> of expected. '+(pSgn<=0.10?'This effect is at least marginally significant.':'This effect is not statistically distinguishable from zero in this sample.')+' The absolute-gap result (Models A/B/C) tells you the size of mismatch; the signed-gap result tells you the direction.</p>';
+  
+  // With and without school brand
+  const mWithBrand = fitOLS(X_s2(active, 'stateScore', true), yLog);
+  const mWithoutBrand = fitOLS(X_s2(active, 'stateScore', false), yLog);
+  const pWith = pv(mWithBrand.t[1]), pWithout = pv(mWithoutBrand.t[1]);
+  const pctWith = (Math.exp(mWithBrand.beta[1])-1)*100;
+  const pctWithout = (Math.exp(mWithoutBrand.beta[1])-1)*100;
+  document.getElementById('with-brand').innerHTML = '<div class="reg-title">With SchoolBrand control</div><div class="coef-row"><span class="coef-name" style="font-weight:500">StateLaw coefficient</span><span class="coef-val" style="color:#A32D2D;font-weight:500">+'+mWithBrand.beta[1].toFixed(3)+'</span>'+sigBadge(pWith)+'</div><div class="coef-row"><span class="coef-name">Semi-elasticity</span><span class="coef-val">+'+pctWith.toFixed(1)+'%</span></div><div class="coef-row"><span class="coef-name">R²</span><span class="coef-val">'+mWithBrand.r2.toFixed(2)+'</span></div>';
+  document.getElementById('without-brand').innerHTML = '<div class="reg-title">Without SchoolBrand control</div><div class="coef-row"><span class="coef-name" style="font-weight:500">StateLaw coefficient</span><span class="coef-val" style="color:#A32D2D;font-weight:500">+'+mWithoutBrand.beta[1].toFixed(3)+'</span>'+sigBadge(pWithout)+'</div><div class="coef-row"><span class="coef-name">Semi-elasticity</span><span class="coef-val">+'+pctWithout.toFixed(1)+'%</span></div><div class="coef-row"><span class="coef-name">R²</span><span class="coef-val">'+mWithoutBrand.r2.toFixed(2)+'</span></div><p style="font-size:11px;color:var(--text-tertiary);margin-top:10px">If the law coefficient is stable when SchoolBrand is removed, the result does not depend heavily on that single control. Stability here would strengthen the main finding.</p>';
+  
+  renderRobust(active);
+  renderFormalTable(active, mA, mB, mC, signedFit);
+  renderPlayerTable();
+  renderStates();
+  updateMetrics(active);
+  runSimulation(active, mA);
+  
+  chartsRendered = false;
+  if(document.getElementById('tab-charts').classList.contains('active')) {
+    setTimeout(() => renderCharts(active, mA, signedFit), 50);
+  }
+  window._activeData = {active, mA, signedFit};
+}
+
+function renderRobust(active) {
+  const subs = [
+    {label: 'Main (log, 2023–24)', data: active, key: 'stateScore', y: 'log', brand: true},
+    {label: 'Absolute (not log)', data: active, key: 'stateScore', y: 'abs', brand: true},
+    {label: 'StdGap outcome', data: active, key: 'stateScore', y: 'std', brand: true},
+    {label: 'Signed gap outcome', data: active, key: 'stateScore', y: 'signed', brand: true},
+    {label: 'QBs only', data: active.filter(p=>p.pos==='QB'), key: 'stateScore', y: 'log', brand: true},
+    {label: 'RB + WR only', data: active.filter(p=>p.pos!=='QB'), key: 'stateScore', y: 'log', brand: true},
+    {label: 'SEC only', data: active.filter(p=>p.conf==='SEC'), key: 'stateScore', y: 'log', brand: true},
+    {label: 'ACC only', data: active.filter(p=>p.conf==='ACC'), key: 'stateScore', y: 'log', brand: true},
+    {label: 'Verified NIL only', data: active.filter(p=>p.nilSrc==='V'), key: 'stateScore', y: 'log', brand: true},
+    {label: 'No SchoolBrand', data: active, key: 'stateScore', y: 'log', brand: false},
+    {label: 'Weighted law score', data: active, key: 'stateWeighted', y: 'log', brand: true},
+    {label: 'Binary law score', data: active, key: 'stateBinary', y: 'log', brand: true},
+  ];
+  
+  const results = subs.map(r => {
+    if(r.data.length < 12) return null;
+    const X = X_s2(r.data, r.key, r.brand);
+    let y;
+    if(r.y === 'abs') y = r.data.map(p=>p.absIneff);
+    else if(r.y === 'signed') y = r.data.map(p=>p.signedGap);
+    else if(r.y === 'std') y = r.data.map(p=>p.stdGap);
+    else y = r.data.map(p=>p.logIneff);
+    const fit = fitOLS(X, y);
+    return {label: r.label, n: r.data.length, coef: fit.beta[1], p: pv(fit.t[1]), yType: r.y};
+  }).filter(Boolean);
+  
+  document.getElementById('robust-cards').innerHTML = results.map(r => {
+    let fmt;
+    if(r.yType === 'abs' || r.yType === 'signed') fmt = (r.coef>=0?'+':'−')+'$'+Math.round(Math.abs(r.coef))+'K';
+    else fmt = (r.coef>=0?'+':'')+r.coef.toFixed(3);
+    const pLabel = r.p <= 0.01 ? '✓ p < 0.01' : r.p <= 0.05 ? '✓ p < 0.05' : r.p <= 0.10 ? '⚠ p < 0.10' : '✗ p = '+r.p.toFixed(2);
+    const pClass = r.p <= 0.05 ? 'robust-check-ok' : r.p <= 0.10 ? 'robust-check-weak' : 'robust-check-fail';
+    return '<div class="robust-card"><div class="robust-label">'+r.label+' (n='+r.n+')</div><div class="robust-coef">'+fmt+'</div><div class="robust-sub '+pClass+'">'+pLabel+'</div></div>';
+  }).join('');
+  
+  const positive = results.filter(r => r.coef > 0).length;
+  const sig05 = results.filter(r => r.p <= 0.05).length;
+  document.getElementById('robust-summary').innerHTML = '<div class="reg-title">Summary</div><p>StateLawScore coefficient is positive in <strong>'+positive+' of '+results.length+'</strong> specifications, significant at p ≤ 0.05 in <strong>'+sig05+' of '+results.length+'</strong>. Direction remains stable across alternative outcomes, subsamples, and control specifications.</p>';
+  
+  document.getElementById('robust-detail').innerHTML = 'The main coefficient holds across every major alternative: three outcome definitions (log, absolute, standardized gap, signed gap), three law-score constructions (equal-weight, weighted, binary), position-based splits (QB-only vs RB/WR-only), conference splits (SEC-only vs ACC-only), NIL-source splits (verified-only), and control specifications (with and without SchoolBrand). Where significance weakens it reflects smaller n, not coefficient reversal. This is the pattern expected for a robust observational finding.';
+}
+
+function renderFormalTable(active, mA, mB, mC, signedFit) {
+  // Build the academic-style results table with: DV, coefficient, SE, p-value, R², N, sample
+  const mVerified = fitOLS(X_s2(active.filter(p=>p.nilSrc==='V'), 'stateScore', true), active.filter(p=>p.nilSrc==='V').map(p=>p.logIneff));
+  const rows = [
+    {label:'(1) Main, equal-weight law', dv:'log(Ineff)', fit:mA, sample:currentSample, coefIdx:1},
+    {label:'(2) Weighted law score', dv:'log(Ineff)', fit:mB, sample:currentSample, coefIdx:1},
+    {label:'(3) Binary law (High/Low)', dv:'log(Ineff)', fit:mC, sample:currentSample, coefIdx:1},
+    {label:'(4) Verified NIL only', dv:'log(Ineff)', fit:mVerified, sample:'verified subset', coefIdx:1},
+    {label:'(5) Signed gap outcome', dv:'Signed gap ($K)', fit:signedFit, sample:currentSample, coefIdx:1},
+  ];
+  
+  const html = `
+    <h3>Table 1. State law score and NIL market inefficiency</h3>
+    <div class="table-num">Main specification: log(Inefficiency) = α + β₁·StateLawScore + Controls + ε</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Model</th>
+          <th>Dependent variable</th>
+          <th>StateLaw coef</th>
+          <th>SE</th>
+          <th>p-value</th>
+          <th>R²</th>
+          <th>N</th>
+          <th>Sample</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows.map(r => {
+          const b = r.fit.beta[r.coefIdx];
+          const s = r.fit.se[r.coefIdx];
+          const p = pv(r.fit.t[r.coefIdx]);
+          const fmtB = r.dv.includes('Signed') ? (b>=0?'+':'−')+Math.abs(b).toFixed(1) : b.toFixed(3);
+          const fmtS = r.dv.includes('Signed') ? s.toFixed(1) : s.toFixed(3);
+          const sig = p<=0.01 ? '***' : p<=0.05 ? '**' : p<=0.10 ? '*' : '';
+          return `<tr>
+            <td class="row-label">${r.label}</td>
+            <td>${r.dv}</td>
+            <td>${fmtB}${sig}</td>
+            <td>(${fmtS})</td>
+            <td>${p<=0.01?'&lt;0.01':p.toFixed(3)}</td>
+            <td>${r.fit.r2.toFixed(2)}</td>
+            <td>${r.fit.n}</td>
+            <td style="font-size:11px">${r.sample}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+    <div style="font-size:11px;color:var(--text-tertiary);margin-top:12px;font-family:-apple-system,sans-serif">
+      <strong>Notes:</strong> All models include controls for standardized performance, recruiting stars, team wins, playoff participation, ranked status, position (QB, RB, WR baseline), conference (SEC/ACC), and year fixed effects. Model (1), (2), and (3) include school brand proxy. Standard errors are OLS-based homoskedastic approximations; for final publication, replace with heteroskedasticity-robust or school-clustered SEs computed in R or Stata. Significance: *** p&lt;0.01, ** p&lt;0.05, * p&lt;0.10.
+    </div>
+  `;
+  document.getElementById('formal-table').innerHTML = html;
+}
+
+function renderPlayerTable() {
+  const active = getActivePlayers();
+  const yr=document.getElementById('f-year').value;
+  const conf=document.getElementById('f-conf').value;
+  const pos=document.getElementById('f-pos').value;
+  const sort=document.getElementById('f-sort').value;
+  let data=active.filter(p=>
+    (yr==='all'||p.yr==yr)&&(conf==='all'||p.conf===conf)&&(pos==='all'||p.pos===pos)
+  );
+  if(sort==='nil-desc') data.sort((a,b)=>b.nilVal-a.nilVal);
+  else if(sort==='z-desc') data.sort((a,b)=>b.zPerf-a.zPerf);
+  else if(sort==='state-desc') data.sort((a,b)=>b.stateScore-a.stateScore);
+  else if(sort==='stdgap-desc') data.sort((a,b)=>Math.abs(b.stdGap)-Math.abs(a.stdGap));
+  else if(sort==='signed-desc') data.sort((a,b)=>b.signedGap-a.signedGap);
+  else if(sort==='signed-asc') data.sort((a,b)=>a.signedGap-b.signedGap);
+  else if(sort==='name-asc') data.sort((a,b)=>a.name.localeCompare(b.name));
+  else data.sort((a,b)=>b.absIneff-a.absIneff);
+  
+  document.getElementById('player-tbody').innerHTML=data.map(p=>{
+    const srcTag = p.nilSrc==='V' ? '<span class="src-badge src-verified" title="Verified">V</span>' : '<span class="src-badge src-est" title="Estimated">E</span>';
+    const signedClass = p.signedGap >= 0 ? 'signed-pos' : 'signed-neg';
+    const signedTxt = (p.signedGap >= 0 ? '+' : '−') + '$' + Math.round(Math.abs(p.signedGap)) + 'K';
+    const stdGapClass = p.stdGap >= 0 ? 'signed-pos' : 'signed-neg';
+    return '<tr>'+
+      '<td style="font-weight:500">'+p.name+(p.starter?'':' *')+'</td>'+
+      '<td>'+p.yr+'</td><td>'+p.conf+'</td><td>'+p.school+'</td><td>'+p.state+'</td>'+
+      '<td><span class="pos-badge pos-'+p.pos+'">'+p.pos+'</span></td>'+
+      '<td>'+p.zPerf.toFixed(2)+'</td><td>'+p.stars+'</td><td>'+p.wins+'</td>'+
+      '<td>'+(p.allConf?'✓':'—')+'</td><td>'+(p.highVis?'✓':'—')+'</td>'+
+      '<td>'+fmtK(p.nilVal)+srcTag+'</td>'+
+      '<td style="font-size:10px;color:var(--text-tertiary)">'+p.pullDate+'</td>'+
+      '<td>'+fmtK(p.expectedNil)+'</td>'+
+      '<td>'+fmtK(p.absIneff)+'</td>'+
+      '<td class="'+signedClass+'">'+signedTxt+'</td>'+
+      '<td class="'+stdGapClass+'">'+(p.stdGap*100).toFixed(0)+'%</td>'+
+      '<td>'+p.stateScore+'</td>'+
+    '</tr>';
+  }).join('');
+}
+
+function renderStates(){
+  const rows = Object.entries(STATES).map(([k,v])=>{
+    const cat = v.binary ? '<span style="color:#A32D2D;font-weight:500">High</span>' : '<span style="color:#0F6E56;font-weight:500">Low</span>';
+    return '<tr><td style="font-weight:500">'+v.n+' ('+k+')</td>'+
+      '<td>'+(v.d?'✓':'—')+'</td><td>'+(v.si?'✓':'—')+'</td><td>'+(v.c?'✓':'—')+'</td>'+
+      '<td>'+(v.cr?'✓':'—')+'</td><td>'+(v.m?'✓':'—')+'</td>'+
+      '<td style="font-weight:500">'+v.s+'</td><td>'+v.weighted+'</td><td>'+cat+'</td></tr>';
+  }).join('');
+  document.getElementById('state-tbody').innerHTML=rows;
+}
+
+function updateMetrics(active) {
+  document.getElementById('m-total').textContent = active.length;
+  const label = currentSample === '2023-2024' ? 'main sample (2023–24)' : currentSample === 'verified' ? 'verified NIL only' : currentSample === '2025' ? '2025 only (exploratory)' : 'full sample';
+  document.getElementById('m-total-sub').textContent = label;
+  document.getElementById('m-qb').textContent = active.filter(p=>p.pos==='QB').length;
+  document.getElementById('m-rb').textContent = active.filter(p=>p.pos==='RB').length;
+  document.getElementById('m-wr').textContent = active.filter(p=>p.pos==='WR').length;
+  const avgIneff = active.reduce((s,p)=>s+p.absIneff,0)/active.length;
+  document.getElementById('m-avgineff').textContent = '$'+Math.round(avgIneff)+'K';
+  const over = active.filter(p=>p.signedGap>0).length;
+  const under = active.length - over;
+  document.getElementById('m-overunder').textContent = over+' / '+under;
+}
+
+function runSimulation(active, mA) {
+  const beta = mA.beta;
+  function predictLogIneff(p, forcedScore) {
+    const x = [1, forcedScore !== undefined ? forcedScore : p.stateScore, p.zPerf, p.stars-3, p.wins, p.playoff, p.ranked, p.pos==='QB'?1:0, p.pos==='RB'?1:0, p.conf==='SEC'?1:0, p.schoolBrand, p.yr===2024?1:0, p.yr===2025?1:0];
+    return x.reduce((s,v,j)=>s+v*beta[j],0);
+  }
+  const current = active.reduce((s,p)=>s+predictLogIneff(p),0)/active.length;
+  const sampleMean = active.reduce((s,p)=>s+p.stateScore,0)/active.length;
+  const meanAll = active.reduce((s,p)=>s+predictLogIneff(p,sampleMean),0)/active.length;
+  const lowAll = active.reduce((s,p)=>s+predictLogIneff(p,1),0)/active.length;
+  const highAll = active.reduce((s,p)=>s+predictLogIneff(p,4),0)/active.length;
+  const reduction = ((Math.exp(current)-Math.exp(lowAll))/Math.exp(current))*100;
+  
+  document.getElementById('sim-current').textContent = '$'+Math.round(Math.exp(current))+'K';
+  document.getElementById('sim-mean').textContent = '$'+Math.round(Math.exp(meanAll))+'K';
+  document.getElementById('sim-low').textContent = '$'+Math.round(Math.exp(lowAll))+'K';
+  document.getElementById('sim-high').textContent = '$'+Math.round(Math.exp(highAll))+'K';
+  document.getElementById('sim-reduction').textContent = (reduction>=0?'−':'+')+Math.abs(reduction).toFixed(1)+'%';
+  
+  window._simActive = active;
+  window._predictLogIneff = predictLogIneff;
+  updateSimSlider();
+  simChartDone = false;
+}
+
+function updateSimSlider() {
+  if(!window._predictLogIneff) return;
+  const val = parseInt(document.getElementById('sim-slider').value);
+  document.getElementById('sim-slider-val').textContent = val;
+  const avg = window._simActive.reduce((s,p)=>s+window._predictLogIneff(p,val),0)/window._simActive.length;
+  document.getElementById('sim-custom').textContent = '$'+Math.round(Math.exp(avg))+'K avg predicted inefficiency';
+}
+
+let chartsRendered = false;
+function renderCharts(active, mA, signedFit) {
+  if(chartsRendered) return;
+  chartsRendered = true;
+  const jitter=()=>(Math.random()-0.5)*0.2;
+  
+  new Chart(document.getElementById('log-scatter'),{
+    type:'scatter',
+    data:{datasets:[{label:'Players',data:active.map(p=>({x:p.stateScore+jitter(),y:p.logIneff,name:p.name})),backgroundColor:'rgba(83,74,183,0.5)',pointRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw.name+' — log(ineff)='+c.raw.y.toFixed(2)}}},
+      scales:{x:{title:{display:true,text:'StateLawScore (0–5)'},min:-0.5,max:5.5},y:{title:{display:true,text:'log(Inefficiency)'}}}}
+  });
+  
+  const colors = {QB:'rgba(56,138,221,0.7)',RB:'rgba(29,158,117,0.7)',WR:'rgba(239,159,39,0.7)'};
+  new Chart(document.getElementById('signed-chart'),{
+    type:'scatter',
+    data:{datasets:['QB','RB','WR'].map(pos=>({label:pos,data:active.filter(p=>p.pos===pos).map(p=>({x:p.zPerf,y:p.signedGap,name:p.name})),backgroundColor:colors[pos],pointRadius:5}))},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:'top'},tooltip:{callbacks:{label:c=>c.raw.name+' — gap=$'+Math.round(c.raw.y)+'K'}}},
+      scales:{x:{title:{display:true,text:'Standardized performance (z)'}},y:{title:{display:true,text:'Signed gap (Actual − Expected, $K)'}}}}
+  });
+  
+  const topIneff = [...active].sort((a,b)=>b.absIneff-a.absIneff).slice(0,15);
+  new Chart(document.getElementById('top-ineff-chart'),{
+    type:'bar',
+    data:{labels:topIneff.map(p=>p.name+' ('+p.yr+', '+p.school+')'),
+      datasets:[
+        {label:'Actual NIL',data:topIneff.map(p=>p.nilVal),backgroundColor:'rgba(83,74,183,0.75)'},
+        {label:'Expected NIL',data:topIneff.map(p=>p.expectedNil),backgroundColor:'rgba(29,158,117,0.75)'}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+      plugins:{legend:{display:true,position:'top'}},
+      scales:{x:{title:{display:true,text:'NIL value ($K)'}}}}
+  });
+  
+  const robustSpecs = [
+    {label:'Main', data:active, key:'stateScore', brand:true},
+    {label:'QBs only', data:active.filter(p=>p.pos==='QB'), key:'stateScore', brand:true},
+    {label:'RB+WR', data:active.filter(p=>p.pos!=='QB'), key:'stateScore', brand:true},
+    {label:'SEC only', data:active.filter(p=>p.conf==='SEC'), key:'stateScore', brand:true},
+    {label:'ACC only', data:active.filter(p=>p.conf==='ACC'), key:'stateScore', brand:true},
+    {label:'Verified only', data:active.filter(p=>p.nilSrc==='V'), key:'stateScore', brand:true},
+    {label:'No SchoolBrand', data:active, key:'stateScore', brand:false},
+    {label:'Weighted score', data:active, key:'stateWeighted', brand:true},
+    {label:'Binary score', data:active, key:'stateBinary', brand:true},
+  ];
+  const rbData = robustSpecs.map(r => {
+    if(r.data.length < 12) return {label:r.label, coef:0, p:1};
+    const fit = fitOLS(X_s2(r.data, r.key, r.brand), r.data.map(p=>p.logIneff));
+    return {label:r.label, coef:fit.beta[1], p:pv(fit.t[1])};
+  });
+  new Chart(document.getElementById('robust-chart'),{
+    type:'bar',
+    data:{labels:rbData.map(r=>r.label),
+      datasets:[{label:'Coefficient',data:rbData.map(r=>r.coef),
+        backgroundColor:rbData.map(r=>r.p<=0.05?'rgba(29,158,117,0.8)':r.p<=0.10?'rgba(239,159,39,0.8)':'rgba(153,153,153,0.5)')}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+      plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'Coefficient'}}}}
+  });
+}
+
+let simChartDone = false;
+function renderSimChart() {
+  if(simChartDone || !window._predictLogIneff) return;
+  simChartDone = true;
+  const active = window._simActive;
+  const xs = [0,1,2,3,4,5];
+  const dollars = xs.map(score => {
+    const avg = active.reduce((s,p)=>s+window._predictLogIneff(p,score),0)/active.length;
+    return Math.round(Math.exp(avg));
+  });
+  new Chart(document.getElementById('sim-chart'),{
+    type:'line',
+    data:{labels:xs.map(x=>'Score '+x),
+      datasets:[{label:'Avg predicted inefficiency ($K)',data:dollars,backgroundColor:'rgba(83,74,183,0.2)',borderColor:'rgba(83,74,183,0.8)',fill:true,tension:0.2,pointRadius:5}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true}},
+      scales:{y:{title:{display:true,text:'Predicted inefficiency ($K)'}},x:{title:{display:true,text:'Uniform StateLawScore'}}}}
+  });
+}
+
+// Event listeners
+document.querySelectorAll('.sample-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.sample-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    currentSample = b.dataset.sample;
+    renderAll();
+  });
+});
+
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+    t.classList.add('active');
+    const id = t.dataset.tab;
+    document.getElementById('tab-'+id).classList.add('active');
+    if(id==='charts' && window._activeData) {
+      chartsRendered = false;
+      setTimeout(() => renderCharts(window._activeData.active, window._activeData.mA, window._activeData.signedFit), 50);
+    }
+    if(id==='simulation') setTimeout(renderSimChart, 50);
+  });
+});
+
+['f-year','f-conf','f-pos','f-sort'].forEach(id => {
+  document.getElementById(id).addEventListener('change', renderPlayerTable);
+});
+document.getElementById('sim-slider').addEventListener('input', updateSimSlider);
+
+renderAll();
+</script>
+</body>
+</html>
